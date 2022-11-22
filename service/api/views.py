@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from fastapi import APIRouter, Depends, FastAPI, Request, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.security.api_key import APIKey, APIKeyHeader, APIKeyQuery
@@ -14,7 +14,7 @@ from service.api.exceptions import (
 )
 from service.log import app_logger
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 
 class RecoResponse(BaseModel):
