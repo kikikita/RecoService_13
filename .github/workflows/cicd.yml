@@ -15,6 +15,4 @@ jobs:
       - run: pip install poetry
       - run: make setup
       - run: make lint
-      - env:
-          API_KEY: ${{ secrets.API_KEY }}
-        run: make test
+      - run: make test
