@@ -36,12 +36,13 @@ def test_get_reco_success(
 
 
 def test_get_reco_for_unknown_user(
+    api_key,
     client: TestClient,
 ) -> None:
     user_id = 10**10
     path = GET_RECO_PATH.format(model_name="dummy_model", user_id=user_id)
     client.headers = CaseInsensitiveDict(
-        {"Authorization": f"Bearer {os.getenv('API_KEY')}"})
+        {"Authorization": f"Bearer {api_key}"})
     with client:
         response = client.get(path)
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -49,12 +50,13 @@ def test_get_reco_for_unknown_user(
 
 
 def test_get_reco_for_unknown_model(
+    api_key,
     client: TestClient,
 ) -> None:
     user_id = 1
     path = GET_RECO_PATH.format(model_name="some_model", user_id=user_id)
     client.headers = CaseInsensitiveDict(
-        {"Authorization": f"Bearer {os.getenv('API_KEY')}"})
+        {"Authorization": f"Bearer {api_key}"})
     with client:
         response = client.get(path)
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -66,6 +68,19 @@ def test_get_reco_unauthorized(
 ) -> None:
     user_id = 1
     path = GET_RECO_PATH.format(model_name="some_model", user_id=user_id)
+    with client:
+        response = client.get(path)
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.json()["errors"][0]["error_key"] == "not_authorized"
+
+
+def test_get_reco_wrong_api_key(
+    client: TestClient,
+) -> None:
+    user_id = 1
+    path = GET_RECO_PATH.format(model_name="some_model", user_id=user_id)
+    client.headers = CaseInsensitiveDict(
+        {"Authorization": "Bearer 228"})
     with client:
         response = client.get(path)
     assert response.status_code == HTTPStatus.UNAUTHORIZED
