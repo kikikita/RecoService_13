@@ -1,5 +1,7 @@
+import os
 from http import HTTPStatus
 
+from requests.structures import CaseInsensitiveDict
 from starlette.testclient import TestClient
 
 from service.settings import ServiceConfig
@@ -20,7 +22,10 @@ def test_get_reco_success(
     service_config: ServiceConfig,
 ) -> None:
     user_id = 123
-    path = GET_RECO_PATH.format(model_name="some_model", user_id=user_id)
+    path = GET_RECO_PATH.format(model_name="dummy_model", user_id=user_id)
+    client.headers = CaseInsensitiveDict(
+        {"Authorization": f"Bearer {os.getenv('API_KEY')}"}
+        )
     with client:
         response = client.get(path)
     assert response.status_code == HTTPStatus.OK
@@ -31,11 +36,52 @@ def test_get_reco_success(
 
 
 def test_get_reco_for_unknown_user(
+    api_key,
     client: TestClient,
 ) -> None:
     user_id = 10**10
-    path = GET_RECO_PATH.format(model_name="some_model", user_id=user_id)
+    path = GET_RECO_PATH.format(model_name="dummy_model", user_id=user_id)
+    client.headers = CaseInsensitiveDict(
+        {"Authorization": f"Bearer {api_key}"})
     with client:
         response = client.get(path)
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json()["errors"][0]["error_key"] == "user_not_found"
+
+
+def test_get_reco_for_unknown_model(
+    api_key,
+    client: TestClient,
+) -> None:
+    user_id = 1
+    path = GET_RECO_PATH.format(model_name="some_model", user_id=user_id)
+    client.headers = CaseInsensitiveDict(
+        {"Authorization": f"Bearer {api_key}"})
+    with client:
+        response = client.get(path)
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()["errors"][0]["error_key"] == "model_not_found"
+
+
+def test_get_reco_unauthorized(
+    client: TestClient,
+) -> None:
+    user_id = 1
+    path = GET_RECO_PATH.format(model_name="some_model", user_id=user_id)
+    with client:
+        response = client.get(path)
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.json()["errors"][0]["error_key"] == "not_authorized"
+
+
+def test_get_reco_wrong_api_key(
+    client: TestClient,
+) -> None:
+    user_id = 1
+    path = GET_RECO_PATH.format(model_name="some_model", user_id=user_id)
+    client.headers = CaseInsensitiveDict(
+        {"Authorization": "Bearer 228"})
+    with client:
+        response = client.get(path)
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.json()["errors"][0]["error_key"] == "not_authorized"
