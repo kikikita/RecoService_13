@@ -1,4 +1,3 @@
-import os
 from http import HTTPStatus
 
 from requests.structures import CaseInsensitiveDict
@@ -18,13 +17,14 @@ def test_health(
 
 
 def test_get_reco_success(
+    api_key,
     client: TestClient,
     service_config: ServiceConfig,
 ) -> None:
     user_id = 123
     path = GET_RECO_PATH.format(model_name="dummy_model", user_id=user_id)
     client.headers = CaseInsensitiveDict(
-        {"Authorization": f"Bearer {os.getenv('API_KEY')}"}
+        {"Authorization": f"Bearer {api_key}"}
         )
     with client:
         response = client.get(path)

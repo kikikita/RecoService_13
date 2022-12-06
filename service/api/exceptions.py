@@ -48,3 +48,14 @@ class UserNotFoundError(AppException):
         error_loc: tp.Optional[tp.Sequence[str]] = None,
     ):
         super().__init__(status_code, error_key, error_message, error_loc)
+
+
+class ModelInitializationError(AppException):
+    def __init__(
+        self,
+        status_code: int = HTTPStatus.BAD_REQUEST,
+        error_key: str = "model_initialization_error",
+        error_message: str = "Error on model initialization",
+        error_loc: tp.Optional[tp.Sequence[str]] = None,
+    ):
+        super().__init__(status_code, error_key, error_message, error_loc)

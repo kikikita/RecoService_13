@@ -1,20 +1,19 @@
-import os
 from typing import List
 
-from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, FastAPI, Request, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.security.api_key import APIKey, APIKeyHeader, APIKeyQuery
 from pydantic import BaseModel
 
 from service.api.exceptions import (
+    ModelInitializationError,
     ModelNotFoundError,
     NotAuthorizedError,
     UserNotFoundError,
 )
 from service.log import app_logger
-
-load_dotenv()
+from service.models import get_models
+from service.settings import API_KEY
 
 
 class RecoResponse(BaseModel):
@@ -22,6 +21,7 @@ class RecoResponse(BaseModel):
     items: List[int]
 
 
+MODELS = get_models()
 router = APIRouter()
 
 
@@ -29,7 +29,6 @@ api_key_query = APIKeyQuery(name='API_KEY', auto_error=False)
 api_key_header = APIKeyHeader(name='API_KEY', auto_error=False)
 token_bearer = HTTPBearer(auto_error=False)
 
-API_KEY = os.getenv("API_KEY")
 if API_KEY is None:
     raise Exception(
         "API_KEY is not set. "
@@ -78,12 +77,17 @@ async def get_reco(
     if user_id > 10**9:
         raise UserNotFoundError(error_message=f"User {user_id} not found")
 
-    if model_name != "dummy_model":
-        raise ModelNotFoundError(error_message=f"Model {model_name} not found")
-
-    k_recs = request.app.state.k_recs
-    reco = list(range(k_recs))
-    return RecoResponse(user_id=user_id, items=reco)
+    if model_name not in MODELS.keys():
+        raise ModelNotFoundError(
+            error_message=f"Model {model_name} not found"
+        )
+    try:
+        reco_list = MODELS[model_name].get_reco(user_id)
+    except Exception:
+        raise ModelInitializationError(
+            error_message="Error on model initialization"
+        )
+    return RecoResponse(user_id=user_id, items=reco_list)
 
 
 def add_views(app: FastAPI) -> None:
