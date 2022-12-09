@@ -19,6 +19,8 @@ uvicorn = "^0.14.0"
 orjson = "^3.7.7"
 starlette = "^0.14.2"
 python-dotenv = "^0.21.0"
+numpy = "^1.23.5"
+dill = "^0.3.6"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
