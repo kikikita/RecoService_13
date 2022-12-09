@@ -49,7 +49,7 @@ class KNNModel(OurModels):
                         recs = recs[:N]
                     return recs.tolist()
                 return pop.tolist()
-            except Exception:
+            except AttributeError:
                 return pop.tolist()
         else:
             return pop.tolist()
