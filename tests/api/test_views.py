@@ -23,11 +23,10 @@ def test_get_reco_success(
 ) -> None:
     user_id = 123
     path = GET_RECO_PATH.format(model_name="dummy_model", user_id=user_id)
-    client.headers = CaseInsensitiveDict(
-        {"Authorization": f"Bearer {api_key}"}
-        )
     with client:
-        response = client.get(path)
+        response = client.get(
+            path, headers={"Authorization": f"Bearer {api_key}"}
+        )
     assert response.status_code == HTTPStatus.OK
     response_json = response.json()
     assert response_json["user_id"] == user_id

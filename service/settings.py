@@ -1,10 +1,16 @@
 import os
+import pickle
 
+import dill
 from dotenv import load_dotenv
 from pydantic import BaseSettings
 
 load_dotenv()
+
 API_KEY = os.getenv("API_KEY")
+knn_model = dill.load(open('service/data/knn_bm25_item.dill', 'rb'))
+pop_model = dill.load(open('service/data/pop_model_7.dill', 'rb'))
+users_list = pickle.load(open('service/data/users_list.pickle', 'rb'))
 
 
 class Config(BaseSettings):
