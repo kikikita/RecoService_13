@@ -76,15 +76,11 @@ class LightFMModel(OurModels):
         emb_users_list = embeds_maps['user_id_map'].index
 
         if user_id in emb_users_list:
-            try:
-                output = embeds_maps['user_embeddings'][
-                        embeds_maps['user_id_map'][user_id], :]\
-                    .dot(embeds_maps['item_embeddings'].T)
-                recs = (-output).argsort()[:10]
-                recs = [x for x in recs if not np.isnan(x)]
-                return [embeds_maps['item_id_map'][item_id]for item_id in recs]
-            except AttributeError:
-                return popular_recs.tolist()
+            output = embeds_maps['user_embeddings'][
+                    embeds_maps['user_id_map'][user_id], :]\
+                .dot(embeds_maps['item_embeddings'].T)
+            recs = (-output).argsort()[:10]
+            return [embeds_maps['item_id_map'][item_id]for item_id in recs]
         else:
             return popular_recs.tolist()
 
