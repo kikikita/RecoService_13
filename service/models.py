@@ -10,12 +10,12 @@ class Error(BaseModel):
     error_loc: tp.Optional[tp.Any] = None
 
 
-class OurModels:
+class RecoModel:
     def get_reco(self, user_id) -> list:
         pass
 
 
-class DummyModel(OurModels):
+class DummyModel(RecoModel):
     def __init__(self) -> None:
         pass
 

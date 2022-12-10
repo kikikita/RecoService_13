@@ -6,14 +6,12 @@ from fastapi.security.api_key import APIKey, APIKeyHeader, APIKeyQuery
 from pydantic import BaseModel
 
 from service.api.exceptions import (
-    ModelInitializationError,
     ModelNotFoundError,
     NotAuthorizedError,
     UserNotFoundError,
 )
 from service.log import app_logger
 from service.models import get_models
-from service.settings import API_KEY
 
 
 class RecoResponse(BaseModel):
@@ -40,7 +38,7 @@ async def get_api_key(
     api_key_from_header: str = Security(api_key_header),
     token: HTTPAuthorizationCredentials = Security(token_bearer),
 ) -> str:
-    if api_key_from_query == API_KEY:
+    if api_key_from_query == api_key:
         return api_key_from_query
     if api_key_from_header == API_KEY:
         return api_key_from_header
@@ -81,12 +79,7 @@ async def get_reco(
         raise ModelNotFoundError(
             error_message=f"Model {model_name} not found"
         )
-    try:
-        reco_list = MODELS[model_name].get_reco(user_id)
-    except Exception:
-        raise ModelInitializationError(
-            error_message="Error on model initialization"
-        )
+    reco_list = MODELS[model_name].get_reco(user_id)
     return RecoResponse(user_id=user_id, items=reco_list)
 
 
