@@ -8,9 +8,12 @@ from pydantic import BaseSettings
 load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
-knn_model = dill.load(open('service/data/knn_bm25_item.dill', 'rb'))
-pop_model = dill.load(open('service/data/pop_model_7.dill', 'rb'))
-users_list = pickle.load(open('service/data/users_list.pickle', 'rb'))
+knn_model = dill.load(open('service/data/knn/knn_bm25_item.dill', 'rb'))
+pop_model = dill.load(open('service/data/knn/pop_model_7.dill', 'rb'))
+ials_model = dill.load(open('service/data/als/implicit_als.dill', 'rb'))
+users_list = pickle.load(open('service/data/knn/users_list.pickle', 'rb'))
+embeds_maps = pickle.load(open('service/data/lightFM/emb_maps.pickle', 'rb'))
+mappings = pickle.load(open('service/data/als/mappings.pickle', 'rb'))
 
 
 class Config(BaseSettings):

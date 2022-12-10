@@ -21,6 +21,7 @@ starlette = "^0.14.2"
 python-dotenv = "^0.21.0"
 numpy = "^1.23.5"
 dill = "^0.3.6"
+pandas = "^1.5.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
