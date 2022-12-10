@@ -72,7 +72,6 @@ class LightFMModel(OurModels):
         if true - return lightfm recs
         if false - return popular recs
         """
-        popular_recs = pop_model.recommend(K)
         emb_users_list = embeds_maps['user_id_map'].index
 
         if user_id in emb_users_list:
@@ -82,7 +81,7 @@ class LightFMModel(OurModels):
             recs = (-output).argsort()[:10]
             return [embeds_maps['item_id_map'][item_id]for item_id in recs]
         else:
-            return popular_recs.tolist()
+            return pop_model.recommend(K).tolist()
 
 
 class ALSModel(OurModels):
@@ -96,20 +95,15 @@ class ALSModel(OurModels):
         if false - return popular recs
         """
         map_users_list = mappings['user_id_map'].index
-
-        popular = pop_model.recommend(K)
         user_embeddings, item_embeddings = ials_model.get_vectors()
 
         if user_id in map_users_list:
-            try:
-                output = user_embeddings[mappings['user_id_map'][user_id], :]\
-                        .dot(item_embeddings.T)
-                recs = (-output).argsort()[:10]
-                return [mappings['item_id_map'][item_id] for item_id in recs]
-            except AttributeError:
-                return popular.tolist()
+            output = user_embeddings[mappings['user_id_map'][user_id], :]\
+                    .dot(item_embeddings.T)
+            recs = (-output).argsort()[:10]
+            return [mappings['item_id_map'][item_id] for item_id in recs]
         else:
-            return popular.tolist()
+            return pop_model.recommend(K).tolist()
 
 
 ALL_MODELS = {
