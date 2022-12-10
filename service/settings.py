@@ -9,7 +9,7 @@ from pydantic import BaseSettings
 load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
-zip_file = zipfile.ZipFile('service/data/knn/knn_bm25_item.zip', 'r') 
+zip_file = zipfile.ZipFile('service/data/knn/knn_bm25_item.zip', 'r')
 knn_model = dill.load(zip_file.open('knn_bm25_item.dill'))
 pop_model = dill.load(open('service/data/knn/pop_model_7.dill', 'rb'))
 users_list = pickle.load(open('service/data/knn/users_list.pickle', 'rb'))
