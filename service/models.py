@@ -4,14 +4,7 @@ import typing as tp
 import numpy as np
 from pydantic import BaseModel
 
-from service.settings import (
-    embeds_maps,
-    ials_model,
-    knn_model,
-    mappings,
-    pop_model,
-    users_list,
-)
+from service.settings import embeds_maps, knn_model, pop_model, users_list
 
 
 class Error(BaseModel):
@@ -80,37 +73,13 @@ class LightFMModel(OurModels):
                 .dot(embeds_maps['item_embeddings'].T)
             recs = (-output).argsort()[:10]
             return [embeds_maps['item_id_map'][item_id]for item_id in recs]
-        else:
-            return pop_model.recommend(K).tolist()
-
-
-class ALSModel(OurModels):
-    def __init__(self) -> None:
-        pass
-
-    def get_rec(self, user_id, K=10):
-        """
-        check if user is in users list
-        if true - return lightfm recs
-        if false - return popular recs
-        """
-        map_users_list = mappings['user_id_map'].index
-        user_embeddings, item_embeddings = ials_model.get_vectors()
-
-        if user_id in map_users_list:
-            output = user_embeddings[mappings['user_id_map'][user_id], :]\
-                    .dot(item_embeddings.T)
-            recs = (-output).argsort()[:10]
-            return [mappings['item_id_map'][item_id] for item_id in recs]
-        else:
-            return pop_model.recommend(K).tolist()
+        return pop_model.recommend(K).tolist()
 
 
 ALL_MODELS = {
     'dummy_model': DummyModel(),
     'knn_model': KNNModel(),
     'lightfm_model': LightFMModel(),
-    'als_model': ALSModel()
     }
 
 
