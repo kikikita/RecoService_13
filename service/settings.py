@@ -1,5 +1,6 @@
 import os
 import pickle
+import zipfile
 
 import dill
 from dotenv import load_dotenv
@@ -8,7 +9,8 @@ from pydantic import BaseSettings
 load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
-knn_model = dill.load(open('service/data/knn/knn_bm25_item.dill', 'rb'))
+zip_file = zipfile.ZipFile('service/data/knn/knn_bm25_item.zip', 'r') 
+knn_model = dill.load(zip_file.open('knn_bm25_item.dill'))
 pop_model = dill.load(open('service/data/knn/pop_model_7.dill', 'rb'))
 users_list = pickle.load(open('service/data/knn/users_list.pickle', 'rb'))
 embeds_maps = pickle.load(open('service/data/lightFM/emb_maps.pickle', 'rb'))
