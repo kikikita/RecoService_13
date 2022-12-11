@@ -1,4 +1,3 @@
-import random
 import typing as tp
 
 from pydantic import BaseModel
@@ -10,17 +9,17 @@ class Error(BaseModel):
     error_loc: tp.Optional[tp.Any] = None
 
 
-class RecoModel:
-    def get_reco(self, user_id) -> list:
+class BaseRecModel:
+    def get_reco(self, user_id: int, k_recs: int) -> tp.List[int]:
         pass
 
 
-class DummyModel(RecoModel):
+class DummyModel(BaseRecModel):
     def __init__(self) -> None:
         pass
 
-    def get_reco(self, user_id) -> list:
-        return random.sample(range(1, 20), 10)
+    def get_reco(self, user_id: int, k_recs: int) -> tp.List[int]:
+        return list(range(k_recs))
 
 
 ALL_MODELS = {'dummy_model': DummyModel()}

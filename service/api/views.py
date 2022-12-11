@@ -2,7 +2,6 @@ from typing import List
 
 from fastapi import APIRouter, Depends, FastAPI, Request, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from fastapi.security.api_key import APIKey, APIKeyHeader, APIKeyQuery
 from pydantic import BaseModel
 
 from service.api.exceptions import (
@@ -23,28 +22,24 @@ MODELS = get_models()
 router = APIRouter()
 
 
-api_key_query = APIKeyQuery(name='API_KEY', auto_error=False)
-api_key_header = APIKeyHeader(name='API_KEY', auto_error=False)
 token_bearer = HTTPBearer(auto_error=False)
-
-if API_KEY is None:
-    raise Exception(
-        "API_KEY is not set. "
-        "You can set it in .env file or in the environment variables.")
 
 
 async def get_api_key(
-    api_key_from_query: str = Security(api_key_query),
-    api_key_from_header: str = Security(api_key_header),
     token: HTTPAuthorizationCredentials = Security(token_bearer),
 ) -> str:
-    if api_key_from_query == api_key:
-        return api_key_from_query
-    if api_key_from_header == API_KEY:
-        return api_key_from_header
-    if token is not None and token.credentials == API_KEY:
-        return token.credentials
-    raise NotAuthorizedError()
+    if not token:
+        raise NotAuthorizedError(
+            error_message="Missing bearer token",
+        )
+    return token.credentials
+
+
+def check_api_key(expected: str, actual: str) -> None:
+    if expected != actual:
+        raise NotAuthorizedError(
+            error_message="Invalid token",
+        )
 
 
 @router.get(
@@ -67,10 +62,12 @@ async def get_reco(
     request: Request,
     model_name: str,
     user_id: int,
-    api_key: APIKey = Depends(get_api_key)
+    api_key: str = Depends(get_api_key)
 ) -> RecoResponse:
     ''' Get recommendations for a user '''
     app_logger.info(f"Request for model: {model_name}, user_id: {user_id}")
+
+    check_api_key(request.app.state.api_key, api_key)
 
     if user_id > 10**9:
         raise UserNotFoundError(error_message=f"User {user_id} not found")
@@ -79,7 +76,8 @@ async def get_reco(
         raise ModelNotFoundError(
             error_message=f"Model {model_name} not found"
         )
-    reco_list = MODELS[model_name].get_reco(user_id)
+
+    reco_list = MODELS[model_name].get_reco(user_id, request.app.state.k_recs)
     return RecoResponse(user_id=user_id, items=reco_list)
 
 
