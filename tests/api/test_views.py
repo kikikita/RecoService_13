@@ -1,4 +1,3 @@
-import os
 from http import HTTPStatus
 
 from requests.structures import CaseInsensitiveDict
@@ -24,7 +23,7 @@ def test_get_reco_success(
     user_id = 123
     path = GET_RECO_PATH.format(model_name="dummy_model", user_id=user_id)
     client.headers = CaseInsensitiveDict(
-        {"Authorization": f"Bearer {os.getenv('API_KEY')}"}
+        {"Authorization": f"Bearer {service_config.api_key}"}
         )
     with client:
         response = client.get(path)
@@ -36,13 +35,13 @@ def test_get_reco_success(
 
 
 def test_get_reco_for_unknown_user(
-    api_key,
     client: TestClient,
+    service_config: ServiceConfig,
 ) -> None:
     user_id = 10**10
     path = GET_RECO_PATH.format(model_name="dummy_model", user_id=user_id)
     client.headers = CaseInsensitiveDict(
-        {"Authorization": f"Bearer {api_key}"})
+        {"Authorization": f"Bearer {service_config.api_key}"})
     with client:
         response = client.get(path)
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -50,13 +49,13 @@ def test_get_reco_for_unknown_user(
 
 
 def test_get_reco_for_unknown_model(
-    api_key,
     client: TestClient,
+    service_config: ServiceConfig,
 ) -> None:
     user_id = 1
     path = GET_RECO_PATH.format(model_name="some_model", user_id=user_id)
     client.headers = CaseInsensitiveDict(
-        {"Authorization": f"Bearer {api_key}"})
+        {"Authorization": f"Bearer {service_config.api_key}"})
     with client:
         response = client.get(path)
     assert response.status_code == HTTPStatus.NOT_FOUND

@@ -1,6 +1,4 @@
 # pylint: disable=redefined-outer-name
-import os
-
 import pytest
 from fastapi import FastAPI
 from starlette.testclient import TestClient
@@ -23,8 +21,3 @@ def app(service_config: ServiceConfig,) -> FastAPI:
 @pytest.fixture
 def client(app: FastAPI) -> TestClient:
     return TestClient(app=app)
-
-
-@pytest.fixture(scope='session')
-def api_key():
-    return os.getenv('API_KEY')
