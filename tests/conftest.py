@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from starlette.testclient import TestClient
 
 from service.api.app import create_app
-from service.settings import API_KEY, ServiceConfig, get_config
+from service.settings import ServiceConfig, get_config
 
 
 @pytest.fixture
@@ -21,8 +21,3 @@ def app(service_config: ServiceConfig,) -> FastAPI:
 @pytest.fixture
 def client(app: FastAPI) -> TestClient:
     return TestClient(app=app)
-
-
-@pytest.fixture(scope='session')
-def api_key():
-    return API_KEY

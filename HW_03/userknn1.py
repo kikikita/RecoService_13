@@ -1,9 +1,10 @@
-import pandas as pd
-import numpy as np
-import scipy as sp
-from typing import Dict
 from collections import Counter
+from typing import Dict
+
 import implicit
+import numpy as np
+import pandas as pd
+import scipy as sp
 from implicit.nearest_neighbours import ItemItemRecommender
 
 
