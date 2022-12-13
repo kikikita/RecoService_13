@@ -70,6 +70,11 @@ class LightFMModel(BaseRecModel):
             models.close()
 
     def get_reco(self, user_id: int, k_recs: int = 10) -> tp.List[int]:
+        """
+        check if user is in users list
+        if true - return lightfm recs
+        if false - return popular recs
+        """
         if user_id in self.users:
             scores = self.emb_maps['user_embeddings'][
                     self.emb_maps['user_id_map'][user_id], :]\
