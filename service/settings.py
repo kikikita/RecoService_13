@@ -30,6 +30,7 @@ class ServiceConfig(Config):
     pop_model: str = 'pop_model_7.dill'
     users_list: str = 'users_list.pickle'
     emb_maps: str = 'emb_maps.pickle'
+    knows_items: str = 'known_items.pickle'
 
     log_config: LogConfig
 

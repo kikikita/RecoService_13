@@ -65,22 +65,28 @@ class LightFMModel(BaseRecModel):
         with ZipFile(config.zip_models_path, 'r') as models:
             self.emb_maps = pickle.load(models.open(config.emb_maps))
             self.pop_model = dill.load(models.open(config.pop_model))
+            self.knows_items = pickle.load(models.open(config.knows_items))
+            self.users = set(self.emb_maps['user_id_map'].index)
             models.close()
 
     def get_reco(self, user_id: int, k_recs: int = 10) -> tp.List[int]:
-        """
-        check if user is in users list
-        if true - return lightfm recs
-        if false - return popular recs
-        """
-        emb_users_list = self.emb_maps['user_id_map'].index
-
-        if user_id in emb_users_list:
-            output = self.emb_maps['user_embeddings'][
+        if user_id in self.users:
+            scores = self.emb_maps['user_embeddings'][
                     self.emb_maps['user_id_map'][user_id], :]\
                 .dot(self.emb_maps['item_embeddings'].T)
-            recs = (-output).argsort()[:10]
-            return [self.emb_maps['item_id_map'][item_id]for item_id in recs]
+
+            filter_items = self.knows_items[user_id]
+            additional_N = len(filter_items) if user_id\
+                in self.knows_items else 0
+
+            total_k = k_recs + additional_N
+            unsorted_recs = scores.argpartition(-total_k)[-total_k:]
+            unsorted_recs_score = scores[unsorted_recs]
+
+            recs = unsorted_recs[(-unsorted_recs_score).argsort()]
+            final_recs = [self.emb_maps['item_id_map'][item]
+                          for item in recs if item not in filter_items]
+            return final_recs[:k_recs]
         return list(self.pop_model.recommend(k_recs))
 
 
