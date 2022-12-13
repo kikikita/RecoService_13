@@ -1,6 +1,6 @@
 import pickle
 import typing as tp
-import zipfile
+from zipfile import ZipFile
 
 import dill
 import numpy as np
@@ -32,10 +32,10 @@ class DummyModel(BaseRecModel):
 
 class KNNModel(BaseRecModel):
     def __init__(self) -> None:
-        self.unzip_model = zipfile.ZipFile(config.zip_models_path, 'r')
-        self.knn_model = dill.load(self.unzip_model.open(config.knn_model))
-        self.pop_model = dill.load(self.unzip_model.open(config.pop_model))
-        self.users_list = pickle.load(self.unzip_model.open(config.users_list))
+        with ZipFile(config.zip_models_path, 'r') as models:
+            self.knn_model = dill.load(models.open(config.knn_model))
+            self.pop_model = dill.load(models.open(config.pop_model))
+            self.users_list = pickle.load(models.open(config.users_list))
 
     def get_reco(self, user_id: int, k_recs: int = 10) -> tp.List[int]:
         """
@@ -61,9 +61,9 @@ class KNNModel(BaseRecModel):
 
 class LightFMModel(BaseRecModel):
     def __init__(self) -> None:
-        self.unzip_model = zipfile.ZipFile(config.zip_models_path, 'r')
-        self.emb_maps = pickle.load(self.unzip_model.open(config.emb_maps))
-        self.pop_model = dill.load(self.unzip_model.open(config.pop_model))
+        with ZipFile(config.zip_models_path, 'r') as models:
+            self.emb_maps = pickle.load(models.open(config.emb_maps))
+            self.pop_model = dill.load(models.open(config.pop_model))
 
     def get_reco(self, user_id: int, k_recs: int = 10) -> tp.List[int]:
         """
