@@ -36,6 +36,7 @@ class KNNModel(BaseRecModel):
             self.knn_model = dill.load(models.open(config.knn_model))
             self.pop_model = dill.load(models.open(config.pop_model))
             self.users_list = pickle.load(models.open(config.users_list))
+            models.close()
 
     def get_reco(self, user_id: int, k_recs: int = 10) -> tp.List[int]:
         """
@@ -64,6 +65,7 @@ class LightFMModel(BaseRecModel):
         with ZipFile(config.zip_models_path, 'r') as models:
             self.emb_maps = pickle.load(models.open(config.emb_maps))
             self.pop_model = dill.load(models.open(config.pop_model))
+            models.close()
 
     def get_reco(self, user_id: int, k_recs: int = 10) -> tp.List[int]:
         """
