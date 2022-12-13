@@ -32,10 +32,10 @@ class DummyModel(BaseRecModel):
 
 class KNNModel(BaseRecModel):
     def __init__(self) -> None:
-        self.unzip_knn = zipfile.ZipFile(config.zip_knn_path, 'r')
-        self.knn_model = dill.load(self.unzip_knn.open(config.knn_model))
-        self.pop_model = dill.load(self.unzip_knn.open(config.pop_model))
-        self.users_list = pickle.load(self.unzip_knn.open(config.users_list))
+        self.unzip_model = zipfile.ZipFile(config.zip_models_path, 'r')
+        self.knn_model = dill.load(self.unzip_model.open(config.knn_model))
+        self.pop_model = dill.load(self.unzip_model.open(config.pop_model))
+        self.users_list = pickle.load(self.unzip_model.open(config.users_list))
 
     def get_reco(self, user_id: int, k_recs: int = 10) -> tp.List[int]:
         """
@@ -59,7 +59,32 @@ class KNNModel(BaseRecModel):
         return list(self.pop_model.recommend(k_recs))
 
 
-ALL_MODELS = {'dummy_model': DummyModel(), 'knn_model': KNNModel()}
+class LightFMModel(BaseRecModel):
+    def __init__(self) -> None:
+        self.unzip_model = zipfile.ZipFile(config.zip_models_path, 'r')
+        self.emb_maps = pickle.load(self.unzip_model.open(config.emb_maps))
+        self.pop_model = dill.load(self.unzip_model.open(config.pop_model))
+
+    def get_reco(self, user_id: int, k_recs: int = 10) -> tp.List[int]:
+        """
+        check if user is in users list
+        if true - return lightfm recs
+        if false - return popular recs
+        """
+        emb_users_list = self.emb_maps['user_id_map'].index
+
+        if user_id in emb_users_list:
+            output = self.emb_maps['user_embeddings'][
+                    self.emb_maps['user_id_map'][user_id], :]\
+                .dot(self.emb_maps['item_embeddings'].T)
+            recs = (-output).argsort()[:10]
+            return [self.emb_maps['item_id_map'][item_id]for item_id in recs]
+        return list(self.pop_model.recommend(k_recs))
+
+
+ALL_MODELS = {'dummy_model': DummyModel(),
+              'knn_model': KNNModel(),
+              'lightfm_model': LightFMModel()}
 
 
 def get_models() -> tp.Dict[str, BaseRecModel]:
