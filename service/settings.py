@@ -1,15 +1,11 @@
-import os
-
-from dotenv import load_dotenv
 from pydantic import BaseSettings
-
-load_dotenv()
 
 
 class Config(BaseSettings):
 
     class Config:
         case_sensitive = False
+        env_file = 'service/.env'
 
 
 class LogConfig(Config):
@@ -28,7 +24,11 @@ class LogConfig(Config):
 class ServiceConfig(Config):
     service_name: str = "reco_service"
     k_recs: int = 10
-    api_key: str = os.getenv("API_KEY")
+    api_key: str
+    zip_knn_path: str = 'models/knn.zip'
+    knn_model: str = 'knn_bm25_item.dill'
+    pop_model: str = 'pop_model_7.dill'
+    users_list: str = 'users_list.pickle'
 
     log_config: LogConfig
 
