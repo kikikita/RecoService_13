@@ -56,7 +56,6 @@ class KNNModel(BaseRecModel):
                     recs = recs[:k_recs]
 
                 return recs
-            return list(self.pop_model.recommend(k_recs))
         return list(self.pop_model.recommend(k_recs))
 
 

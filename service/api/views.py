@@ -72,12 +72,12 @@ async def get_reco(
     if user_id > 10**9:
         raise UserNotFoundError(error_message=f"User {user_id} not found")
 
-    if model_name not in MODELS.keys():
+    try:
+        model = MODELS[model_name]
+        reco_list = model.get_reco(user_id, request.app.state.k_recs)
+    except KeyError:
         raise ModelNotFoundError(
-            error_message=f"Model {model_name} not found"
-        )
-
-    reco_list = MODELS[model_name].get_reco(user_id, request.app.state.k_recs)
+            error_message=f"Model {model_name} not found")
     return RecoResponse(user_id=user_id, items=reco_list)
 
 
