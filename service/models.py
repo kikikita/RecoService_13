@@ -65,7 +65,7 @@ class LightFMModel(BaseRecModel):
             self.emb_maps = pickle.load(models.open(config.emb_maps))
             self.pop_model = dill.load(models.open(config.pop_model))
             self.knows_items = pickle.load(models.open(config.knows_items))
-            self.users = set(self.emb_maps['user_id_map'].index)
+            self.users = set(self.emb_maps['user_id_map'].keys())
 
     def get_reco(self, user_id: int, k_recs: int = 10) -> tp.List[int]:
         """
@@ -87,7 +87,7 @@ class LightFMModel(BaseRecModel):
             unsorted_recs_score = scores[unsorted_recs]
 
             recs = unsorted_recs[(-unsorted_recs_score).argsort()]
-            final_recs = [self.emb_maps['item_id_map'][item]
+            final_recs = [self.emb_maps['item_id_inv_map'][item]
                           for item in recs if item not in filter_items]
             return final_recs[:k_recs]
         return list(self.pop_model.recommend(k_recs))
