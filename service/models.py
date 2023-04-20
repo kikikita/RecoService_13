@@ -87,7 +87,7 @@ class LightFMModel(BaseRecModel):
             unsorted_recs_score = scores[unsorted_recs]
 
             recs = unsorted_recs[(-unsorted_recs_score).argsort()]
-            final_recs = [self.emb_maps['item_id_inv_map'][item]
+            final_recs = [self.emb_maps['item_id_map'][item]
                           for item in recs if item not in filter_items]
             return final_recs[:k_recs]
         return list(self.pop_model.recommend(k_recs))
