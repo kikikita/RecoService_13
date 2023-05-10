@@ -65,7 +65,7 @@ class LightFMModel(BaseRecModel):
             self.emb_maps = pickle.load(models.open(config.emb_maps))
             self.pop_model = dill.load(models.open(config.pop_model))
             self.knows_items = pickle.load(models.open(config.knows_items))
-            self.users = set(self.emb_maps['user_id_map'].index)
+            self.users = set(self.emb_maps['user_id_map'].keys())
 
     def get_reco(self, user_id: int, k_recs: int = 10) -> tp.List[int]:
         """
